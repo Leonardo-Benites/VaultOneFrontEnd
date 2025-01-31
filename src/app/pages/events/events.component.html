@@ -1,0 +1,217 @@
+<div class="container">
+  <h2>Lista de Eventos</h2>
+
+  <h5>Filtros</h5>
+
+   <!-- Filtro por palavras-chave -->
+   <input type="text" [(ngModel)]="filterText" class="form-control" placeholder="Buscar por palavras-chave..." />
+
+   <!-- Filtro por data -->
+   <div class="d-flex mt-2">
+     <input type="date" [(ngModel)]="endDate" class="form-control ml-2" placeholder="End Date" />
+   </div>
+
+   <div class="form-group mt-3">
+    <label for="event-list">Eventos</label>
+    <table class="table table-striped" id="event-list">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Tipo</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let event of events">
+          <td>{{ event.name }}</td>
+          <td>{{ event.description }}</td>
+          <td>{{ event.type === 0 ? 'Publico' : 'Privado' }}</td>
+          <td>
+            <button type="button" class="btn btn-warning" (click)="SubscribeOnEvent()">Inscrever-se</button>
+            <button type="button" class="btn btn-warning" (click)="openUpdateModal(event)">Editar</button>
+            <button type="button" class="btn btn-danger" (click)="openDeleteModal(event.id)">Remover</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <button type="button" class="btn btn-primary" (click)="searchEvents()">
+    Buscar Eventos
+  </button>
+
+  <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+      Criar Evento
+  </button>
+
+    <!-- Create -->
+  <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createModalLabel">Criação de Evento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="name">Nome</label>
+            <input type="text" class="form-control" id="name" [(ngModel)]="newEvent.Name" [ngModelOptions]="{standalone: true}" placeholder="Digite o nome" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="description">Descrição</label>
+            <input type="description" class="form-control" id="description" [(ngModel)]="newEvent.Description" [ngModelOptions]="{standalone: true}" placeholder="Digite a descrição" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="keywords">Palavras-Chave</label>
+            <input type="keywords" class="form-control" id="keywords" [(ngModel)]="newEvent.KeyWords" [ngModelOptions]="{standalone: true}" placeholder="Separe por virgula ex: php,palestra,dev" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="date">Data de encerramento</label>
+            <input type="date" class="form-control" id="date" [(ngModel)]="newEvent.Date" [ngModelOptions]="{standalone: true}" placeholder="" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="type">Selecione o tipo</label>
+            <select class="form-control" id="type" [(ngModel)]="newEvent.Type" [ngModelOptions]="{standalone: true}">
+              <option value="0">Publico</option>
+              <option value="1">Privado</option>
+            </select>
+          </div>
+          <div class="form-group mt-3">
+            <label for="user-list">Convide usuários para o Evento</label>
+            <table class="table table-striped" id="user-list">
+              <thead>
+                <tr>
+                  <th>Selecionar</th>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Acesso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of users">
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      [(ngModel)]="user.selected"
+                      [ngModelOptions]="{standalone: true}" 
+                      (change)="onUserSelect(user)"
+                      [value]="user.id"
+                    />
+                  </td>
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.profile === 0 ? 'Padrão' : 'Admin' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="createEvent()">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update -->
+  <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateModalLabel">Edição de Evento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="updateName">Nome</label>
+            <input type="text" class="form-control" id="updateName" [(ngModel)]="updatedEvent.Name" [ngModelOptions]="{standalone: true}" placeholder="Digite o nome" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="updateDescription">Descrição</label>
+            <input type="description" class="form-control" id="updateDescription" [(ngModel)]="updatedEvent.Description" [ngModelOptions]="{standalone: true}" placeholder="Digite a descrição" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="updateKeywords">Palavras-chave</label>
+            <input type="keywords" class="form-control" id="updateKeywords" [(ngModel)]="updatedEvent.KeyWords" [ngModelOptions]="{standalone: true}" placeholder="Digite as palavras-chave" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="updateDate">Data</label>
+            <input type="date" class="form-control" id="updateDate" [(ngModel)]="updatedEventDateString" [ngModelOptions]="{standalone: true}" placeholder="" />
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="updateType">Tipo</label>
+            <select class="form-control" id="updateType" [(ngModel)]="updatedEvent.Type" [ngModelOptions]="{standalone: true}">
+              <option value="0">Default</option>
+              <option value="1">Admin</option>
+            </select>
+          </div>
+          <div class="form-group mt-3">
+            <label for="user-list">Convide usuários para o Evento</label>
+            <table class="table table-striped" id="user-list">
+              <thead>
+                <tr>
+                  <th>Selecionar</th>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Acesso</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of users">
+                  <td>
+                    <input 
+                      type="checkbox" 
+                      [(ngModel)]="user.selected"
+                      [ngModelOptions]="{standalone: true}" 
+                      (change)="onUserSelect(user)"
+                      [value]="user.id"
+                    />
+                  </td>
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.profile === 0 ? 'Padrão' : 'Admin' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="updateEvent()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Delete Event</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Você confirma que quer remover este evento?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" (click)="deleteEvent()">Confirmar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
